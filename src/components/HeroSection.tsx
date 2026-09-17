@@ -73,8 +73,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
   return (
     <section className="relative w-full">
-      {/* ── Search Bar Section (Above Hero Carousel) ── */}
-      <div className="bg-gradient-to-b from-zinc-50 to-white dark:from-zinc-950 dark:to-[#0a0a0a] border-b border-black/[0.06] dark:border-white/10 py-3 sm:py-3.5 px-4 sm:px-6">
+      {/* ── Search Bar Section (Above Hero Carousel) - Desktop only, removed on mobile front page ── */}
+      <div className="hidden md:block bg-gradient-to-b from-zinc-50 to-white dark:from-zinc-950 dark:to-[#0a0a0a] border-b border-black/[0.06] dark:border-white/10 py-3 sm:py-3.5 px-4 sm:px-6">
         <div className="max-w-3xl mx-auto">
           <div
             onClick={onOpenSearch}

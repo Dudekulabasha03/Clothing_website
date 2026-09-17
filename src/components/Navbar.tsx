@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ShoppingBag,
@@ -107,10 +108,11 @@ export const Navbar: React.FC<NavbarProps> = ({
   const divisionActive = (div: string) => activeDivision === div;
 
   return (
-    <header className={`sticky top-0 z-50 w-full backdrop-blur-xl border-b transition-all duration-300 ${navBg} ${scrolled ? 'shadow-sm' : ''}`}>
+    <>
+      <header className={`sticky top-0 z-50 w-full backdrop-blur-xl border-b transition-all duration-300 ${navBg} ${scrolled ? 'shadow-sm' : ''}`}>
 
-      {/* ── Marquee Strip ── */}
-      <div className={`text-[11px] font-bold border-b overflow-hidden ${isDark ? 'bg-zinc-950 border-white/5 text-zinc-300' : 'bg-[#111] border-white/5 text-zinc-200'}`}>
+      {/* ── Marquee Strip (Desktop only - hidden on mobile view) ── */}
+      <div className={`hidden md:block text-[11px] font-bold border-b overflow-hidden ${isDark ? 'bg-zinc-950 border-white/5 text-zinc-300' : 'bg-[#111] border-white/5 text-zinc-200'}`}>
         <div className="flex animate-marquee whitespace-nowrap gap-16 py-1.5">
           <span className="inline-flex items-center gap-2 font-black text-white">
             <span className="w-1.5 h-1.5 rounded-full bg-[#D1FE17] animate-ping" />
@@ -138,8 +140,78 @@ export const Navbar: React.FC<NavbarProps> = ({
       </div>
 
       {/* ── Main Bar ── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-[68px] gap-4">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        {/* MOBILE TOP BAR (lg:hidden): Clean 3-part layout (Left Menu, Center Logo, Right Actions) */}
+        <div className="flex lg:hidden items-center justify-between h-14">
+          {/* Left: Hamburger Side Menu Trigger */}
+          <div className="flex items-center">
+            <button
+              onClick={() => setMobileDrawerOpen(true)}
+              className={`p-2 -ml-1 rounded-xl transition-colors ${
+                isDark ? 'text-zinc-200 hover:bg-zinc-800 active:bg-zinc-700' : 'text-zinc-800 hover:bg-zinc-100 active:bg-zinc-200'
+              }`}
+              aria-label="Open side menu"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+          </div>
+
+          {/* Center: Brand Logo */}
+          <button
+            onClick={() => { onSelectCategory('all'); onSelectDivision('all'); }}
+            className="flex flex-col items-center text-center focus:outline-none"
+          >
+            <span className={`text-xl font-black tracking-tight leading-none ${isDark ? 'text-white' : 'text-[#111]'}`}>
+              DIL GARMENTS
+            </span>
+            <span className={`text-[8px] tracking-[0.2em] uppercase font-bold mt-0.5 ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>
+              TADIPATRI
+            </span>
+          </button>
+
+          {/* Right: Search, Wishlist, Bag */}
+          <div className="flex items-center gap-0.5 sm:gap-1">
+            <button
+              onClick={onOpenSearch}
+              className={`p-2 rounded-full transition-all ${isDark ? 'text-zinc-300 hover:bg-zinc-800' : 'text-zinc-700 hover:bg-zinc-100'}`}
+              title="Search collection"
+              aria-label="Search"
+            >
+              <Search className="w-5 h-5" />
+            </button>
+
+            <button
+              onClick={() => onSelectCategory('all')}
+              className={`relative p-2 rounded-full transition-all ${isDark ? 'text-zinc-300 hover:text-red-400' : 'text-zinc-700 hover:text-red-500'}`}
+              title="Wishlist"
+              aria-label="Wishlist"
+            >
+              <Heart className="w-5 h-5" />
+              {wishlistCount > 0 && (
+                <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-red-500 text-[9px] font-black text-white flex items-center justify-center">
+                  {wishlistCount}
+                </span>
+              )}
+            </button>
+
+            <button
+              onClick={onOpenCart}
+              className="relative p-2 rounded-full text-[#111] dark:text-white transition-all"
+              title="Shopping Bag"
+              aria-label="Shopping Bag"
+            >
+              <ShoppingBag className="w-5 h-5" />
+              {cartCount > 0 && (
+                <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-[#F5B301] text-black text-[9px] font-black flex items-center justify-center shadow-sm">
+                  {cartCount}
+                </span>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* DESKTOP TOP BAR (hidden lg:flex): Original desktop navigation */}
+        <div className="hidden lg:flex items-center justify-between h-[68px] gap-4">
 
           {/* Logo */}
           <div className="flex items-center gap-8">
@@ -283,21 +355,12 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </span>
               )}
             </button>
-
-            {/* Mobile hamburger */}
-            <button
-              onClick={() => setMobileDrawerOpen(true)}
-              className={`lg:hidden p-2 rounded-full ${isDark ? 'text-zinc-300 hover:bg-zinc-800' : 'text-zinc-600 hover:bg-zinc-100'}`}
-              aria-label="Open side menu"
-            >
-              <Menu className="w-5 h-5" />
-            </button>
           </div>
         </div>
       </div>
 
-      {/* ── Category Strip ── */}
-      <div className={`border-t ${isDark ? 'border-white/5 bg-[#0a0a0a]' : 'border-black/5 bg-white'}`}>
+      {/* ── Category Strip (Desktop only - hidden on mobile view) ── */}
+      <div className={`hidden md:block border-t ${isDark ? 'border-white/5 bg-[#0a0a0a]' : 'border-black/5 bg-white'}`}>
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           <div className="flex items-center space-x-1.5 py-2 overflow-x-auto no-scrollbar text-[11px] font-extrabold uppercase tracking-wider">
             {[
@@ -373,27 +436,29 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         </div>
       </div>
+    </header>
 
-      {/* ── Animated Slide-over Mobile Side Menu Drawer ── */}
+    {/* ── Animated Slide-over Mobile Side Menu Drawer (Attached to document.body via Portal) ── */}
+    {typeof document !== 'undefined' && createPortal(
       <AnimatePresence>
         {mobileDrawerOpen && (
-          <div className="fixed inset-0 z-50 lg:hidden flex">
+          <div className="fixed inset-0 z-[9999] lg:hidden">
             {/* Backdrop blur overlay */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setMobileDrawerOpen(false)}
-              className="fixed inset-0 bg-black/70 backdrop-blur-sm"
+              className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[999]"
             />
 
-            {/* Slide-over Drawer Panel */}
+            {/* Slide-over Drawer Panel from Left Edge */}
             <motion.div
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
-              transition={{ type: 'spring', damping: 26, stiffness: 280 }}
-              className={`relative w-[85%] max-w-[340px] h-full shadow-2xl flex flex-col z-10 overflow-hidden ${
+              transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+              className={`fixed inset-y-0 left-0 w-[85%] max-w-[320px] h-full shadow-2xl flex flex-col z-[1000] overflow-hidden ${
                 isDark ? 'bg-zinc-950 text-white' : 'bg-white text-[#111]'
               }`}
             >
@@ -619,7 +684,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             </motion.div>
           </div>
         )}
-      </AnimatePresence>
-    </header>
+      </AnimatePresence>,
+      document.body
+    )}
+    </>
   );
 };
