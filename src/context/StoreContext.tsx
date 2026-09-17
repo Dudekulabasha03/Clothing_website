@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Product, Order, HeroSlide, Coupon } from '../types';
+import { Product, Order, HeroSlide, Coupon, ComboDealConfig } from '../types';
 import { INITIAL_PRODUCTS, INITIAL_ORDERS } from '../data/products';
 
 export const INITIAL_HERO_SLIDES: HeroSlide[] = [
@@ -49,6 +49,8 @@ interface StoreContextType {
   orders: Order[];
   heroSlides: HeroSlide[];
   coupons: Coupon[];
+  comboConfig: ComboDealConfig;
+  updateComboConfig: (config: Partial<ComboDealConfig>) => void;
   addProduct: (product: Omit<Product, 'id'>) => Product;
   updateProduct: (product: Product) => void;
   deleteProduct: (id: string) => void;
@@ -72,6 +74,17 @@ const PRODUCTS_STORAGE_KEY = 'dilgarments_products_v2';
 const ORDERS_STORAGE_KEY = 'dilgarments_orders_v2';
 const HERO_STORAGE_KEY = 'dilgarments_hero_v1';
 const COUPONS_STORAGE_KEY = 'dilgarments_coupons_v1';
+const COMBO_STORAGE_KEY = 'dilgarments_combo_v1';
+
+const DEFAULT_COMBO_CONFIG: ComboDealConfig = {
+  title: 'COMPLETE THE FIT COMBO',
+  badge: 'Streetwear Bundle Deal',
+  description: 'Pair an Oversized Baggy Shirt + Korean Baggy Pants for just ₹750 (Save ₹50 extra!)',
+  bundlePrice: 750,
+  item1Id: 'dg-bs-001',
+  item2Id: 'dg-bp-001',
+  enabled: true
+};
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [products, setProducts] = useState<Product[]>(() => {
@@ -81,6 +94,22 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } catch (e) { console.error(e); }
     return INITIAL_PRODUCTS;
   });
+
+  const [comboConfig, setComboConfig] = useState<ComboDealConfig>(() => {
+    try {
+      const saved = localStorage.getItem(COMBO_STORAGE_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch (e) { console.error(e); }
+    return DEFAULT_COMBO_CONFIG;
+  });
+
+  const updateComboConfig = (updates: Partial<ComboDealConfig>) => {
+    setComboConfig(prev => {
+      const next = { ...prev, ...updates };
+      try { localStorage.setItem(COMBO_STORAGE_KEY, JSON.stringify(next)); } catch (e) { console.error(e); }
+      return next;
+    });
+  };
 
   const [orders, setOrders] = useState<Order[]>(() => {
     try {
@@ -230,6 +259,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         orders,
         heroSlides,
         coupons,
+        comboConfig,
+        updateComboConfig,
         addProduct,
         updateProduct,
         deleteProduct,

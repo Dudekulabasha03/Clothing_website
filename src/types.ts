@@ -125,3 +125,13 @@ export interface HeroSlide {
   accent: string;
   textLight?: boolean;
 }
+
+export interface ComboDealConfig {
+  title: string;
+  badge: string;
+  description: string;
+  bundlePrice: number;
+  item1Id: string;
+  item2Id: string;
+  enabled: boolean;
+}

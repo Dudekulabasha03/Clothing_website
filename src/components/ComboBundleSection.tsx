@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Plus, Sparkles, Check, ArrowRight, Zap, Flame } from 'lucide-react';
 import { Product } from '../types';
 import { formatINR } from '../lib/utils';
+import { useStore } from '../context/StoreContext';
 
 interface ComboBundleSectionProps {
   products: Product[];
@@ -15,9 +16,16 @@ export const ComboBundleSection: React.FC<ComboBundleSectionProps> = ({
   onAddToCart,
   onOpenProduct
 }) => {
-  // Pick representative shirt and pant from catalog
-  const comboShirt = products.find(p => p.category === 'baggy-shirts') || products[0];
-  const comboPant = products.find(p => p.category === 'baggy-pants') || products[1];
+  const { comboConfig } = useStore();
+
+  // If combo deal is disabled in admin, hide it
+  if (!comboConfig.enabled) return null;
+
+  // Resolve items from comboConfig or fallback to top categories
+  const comboShirt = products.find(p => p.id === comboConfig.item1Id) ||
+    products.find(p => p.category === 'baggy-shirts') || products[0];
+  const comboPant = products.find(p => p.id === comboConfig.item2Id) ||
+    products.find(p => p.category === 'baggy-pants') || products[1];
 
   const [shirtSize, setShirtSize] = useState<string>('L');
   const [pantSize, setPantSize] = useState<string>('32');
@@ -25,9 +33,9 @@ export const ComboBundleSection: React.FC<ComboBundleSectionProps> = ({
 
   if (!comboShirt || !comboPant) return null;
 
-  const originalTotal = comboShirt.price + comboPant.price; // Usually 400 + 400 = 800
-  const bundlePrice = 750; // Special Flat ₹750 combo
-  const savings = originalTotal - bundlePrice;
+  const originalTotal = comboShirt.price + comboPant.price;
+  const bundlePrice = comboConfig.bundlePrice || 750;
+  const savings = Math.max(0, originalTotal - bundlePrice);
 
   const handleAddBundle = () => {
     // Add shirt
@@ -46,13 +54,13 @@ export const ComboBundleSection: React.FC<ComboBundleSectionProps> = ({
         <div className="text-center max-w-2xl mx-auto mb-10 space-y-2">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 border border-red-200 text-red-600 text-[11px] font-black uppercase tracking-wider">
             <Flame className="w-3.5 h-3.5 fill-red-500" />
-            Streetwear Bundle Deal
+            {comboConfig.badge || 'Streetwear Bundle Deal'}
           </div>
           <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-[#111]">
-            COMPLETE THE FIT COMBO
+            {comboConfig.title || 'COMPLETE THE FIT COMBO'}
           </h2>
           <p className="text-zinc-500 text-sm">
-            Pair an Oversized Baggy Shirt + Korean Baggy Pants for just <strong className="text-red-600 font-mono">₹750</strong> (Save ₹50 extra!)
+            {comboConfig.description || `Pair an Oversized Baggy Shirt + Korean Baggy Pants for just ₹${bundlePrice}`}
           </p>
         </div>
 

@@ -103,13 +103,13 @@ const MiniBarChart: React.FC<{ data: number[]; labels: string[]; color?: string 
 // ── Main Admin Page ─────────────────────────────────────────────────────
 export const AdminPage: React.FC<AdminPageProps> = ({ onBackToStore }) => {
   const {
-    products, orders, heroSlides, addProduct, updateProduct, deleteProduct,
+    products, orders, heroSlides, comboConfig, updateComboConfig, addProduct, updateProduct, deleteProduct,
     toggleLatestCollection, toggleFlat400Offer, updateOrderStatus,
     addHeroSlide, deleteHeroSlide, resetToDefaults
   } = useStore();
   const { isAdminAuthenticated, loginAdmin, logoutAdmin, allUsers } = useAuth();
 
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'add' | 'inventory' | 'orders' | 'coupons' | 'banners' | 'broadcast'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'banners' | 'combo' | 'add' | 'inventory' | 'orders' | 'coupons' | 'broadcast'>('dashboard');
   const [selectedProductIds, setSelectedProductIds] = useState<Set<string>>(new Set());
 
   // Add product form
@@ -154,6 +154,16 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBackToStore }) => {
   // Broadcast
   const [broadcastMsg, setBroadcastMsg] = useState('');
   const [selectedInvoiceOrder, setSelectedInvoiceOrder] = useState<Order | null>(null);
+
+  // Fit Combo Deal State
+  const [comboTitle, setComboTitle] = useState(comboConfig?.title || 'COMPLETE THE FIT COMBO');
+  const [comboBadge, setComboBadge] = useState(comboConfig?.badge || 'Streetwear Bundle Deal');
+  const [comboDesc, setComboDesc] = useState(comboConfig?.description || 'Style like a streetwear icon with our handpicked oversized combo.');
+  const [comboPrice, setComboPrice] = useState(String(comboConfig?.bundlePrice || 749));
+  const [comboItem1Id, setComboItem1Id] = useState(comboConfig?.item1Id || '');
+  const [comboItem2Id, setComboItem2Id] = useState(comboConfig?.item2Id || '');
+  const [comboEnabled, setComboEnabled] = useState(comboConfig?.enabled ?? true);
+  const [comboSuccess, setComboSuccess] = useState('');
 
   // ── Admin Auth Gate ──
   if (!isAdminAuthenticated) {
@@ -398,9 +408,25 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBackToStore }) => {
     setTimeout(() => setBannerSuccess(''), 3000);
   };
 
+  const handleSaveCombo = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateComboConfig({
+      title: comboTitle.trim() || 'COMPLETE THE FIT COMBO',
+      badge: comboBadge.trim() || 'Streetwear Bundle Deal',
+      description: comboDesc.trim(),
+      bundlePrice: parseFloat(comboPrice) || 749,
+      item1Id: comboItem1Id || undefined,
+      item2Id: comboItem2Id || undefined,
+      enabled: comboEnabled,
+    });
+    setComboSuccess('✅ Fit Combo Deal updated successfully! Live on storefront.');
+    setTimeout(() => setComboSuccess(''), 3500);
+  };
+
   const TABS = [
     { key: 'dashboard', label: 'Dashboard', icon: <BarChart2 className="w-4 h-4" /> },
     { key: 'banners', label: `Front Display (${heroSlides?.length || 0})`, icon: <ImageIcon className="w-4 h-4" /> },
+    { key: 'combo', label: 'Fit Combo 🔥', icon: <Flame className="w-4 h-4 text-orange-500" /> },
     { key: 'add', label: 'Add Product', icon: <PlusCircle className="w-4 h-4" /> },
     { key: 'inventory', label: `Inventory (${products.length})`, icon: <Package className="w-4 h-4" /> },
     { key: 'orders', label: `Orders (${orders.length})`, icon: <ShoppingBag className="w-4 h-4" /> },
@@ -723,6 +749,326 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBackToStore }) => {
             </div>
           </div>
         )}
+
+        {/* ════════════ FIT COMBO DEAL ════════════ */}
+        {activeTab === 'combo' && (() => {
+          const item1 = products.find(p => p.id === comboItem1Id) || products[0];
+          const item2 = products.find(p => p.id === comboItem2Id) || products[1] || products[0];
+          const origTotal = (item1?.price || 0) + (item2?.price || 0);
+          const bundleNum = parseFloat(comboPrice) || 0;
+          const savings = Math.max(0, origTotal - bundleNum);
+          const savingsPercent = origTotal > 0 ? Math.round((savings / origTotal) * 100) : 0;
+
+          return (
+            <div className="space-y-6 max-w-6xl">
+              {/* Header Status Card */}
+              <div className="bg-white rounded-2xl p-5 sm:p-6 border border-zinc-100 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center text-white shadow-md shadow-orange-500/20">
+                    <Flame className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2.5">
+                      <h2 className="text-lg font-black text-[#111]">Complete The Fit Combo</h2>
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                        comboEnabled ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-zinc-100 text-zinc-500 border border-zinc-200'
+                      }`}>
+                        {comboEnabled ? '● Active on Storefront' : '○ Disabled'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-zinc-500 mt-0.5">
+                      Pair any two catalog items into a streetwear bundle deal with one-click "Add Both to Bag".
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 self-start sm:self-auto">
+                  <button
+                    type="button"
+                    onClick={() => setComboEnabled(!comboEnabled)}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-black text-xs transition-all ${
+                      comboEnabled
+                        ? 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200'
+                        : 'bg-green-50 text-green-700 hover:bg-green-100 border border-green-200'
+                    }`}
+                  >
+                    {comboEnabled ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
+                    {comboEnabled ? 'Disable on Homepage' : 'Enable on Homepage'}
+                  </button>
+                </div>
+              </div>
+
+              {comboSuccess && (
+                <div className="p-4 rounded-2xl bg-green-50 border border-green-200 text-green-800 text-xs font-bold flex items-center gap-2 animate-fadeIn">
+                  <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0" />
+                  <span>{comboSuccess}</span>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* Left: Configuration Form */}
+                <div className="lg:col-span-7 bg-white rounded-2xl shadow-sm border border-zinc-100 overflow-hidden">
+                  <div className="px-6 py-4 border-b border-zinc-100 flex items-center justify-between">
+                    <h3 className="text-sm font-black text-[#111] uppercase tracking-wider flex items-center gap-2">
+                      <Edit3 className="w-4 h-4 text-[#F5B301]" /> Combo Deal Settings
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setComboTitle('COMPLETE THE FIT COMBO');
+                        setComboBadge('Streetwear Bundle Deal');
+                        setComboDesc('Style like a streetwear icon with our handpicked oversized combo. Handcrafted for maximum comfort.');
+                        setComboPrice('749');
+                        setComboEnabled(true);
+                      }}
+                      className="text-[11px] font-bold text-zinc-400 hover:text-[#111] transition-colors flex items-center gap-1"
+                    >
+                      <RefreshCw className="w-3 h-3" /> Reset Defaults
+                    </button>
+                  </div>
+
+                  <form onSubmit={handleSaveCombo} className="px-6 py-5 space-y-5">
+                    {/* Section Title */}
+                    <div>
+                      <label className="text-xs font-bold text-zinc-700 block mb-1">Section Title</label>
+                      <input
+                        type="text"
+                        value={comboTitle}
+                        onChange={e => setComboTitle(e.target.value)}
+                        placeholder="e.g. COMPLETE THE FIT COMBO"
+                        className="w-full px-4 py-2.5 rounded-xl border border-zinc-200 text-sm font-bold text-[#111] outline-none focus:border-[#111] transition-colors"
+                      />
+                    </div>
+
+                    {/* Badge Pill & Bundle Price Row */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-xs font-bold text-zinc-700 block mb-1">Offer Badge Pill</label>
+                        <input
+                          type="text"
+                          value={comboBadge}
+                          onChange={e => setComboBadge(e.target.value)}
+                          placeholder="e.g. Streetwear Bundle Deal"
+                          className="w-full px-4 py-2.5 rounded-xl border border-zinc-200 text-sm text-[#111] outline-none focus:border-[#111] transition-colors"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-bold text-zinc-700 block mb-1">
+                          Combo Bundle Price (₹) *
+                        </label>
+                        <div className="relative">
+                          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-zinc-400">₹</span>
+                          <input
+                            type="number"
+                            min="1"
+                            step="1"
+                            value={comboPrice}
+                            onChange={e => setComboPrice(e.target.value)}
+                            placeholder="749"
+                            className="w-full pl-8 pr-4 py-2.5 rounded-xl border border-zinc-200 text-sm font-black text-[#111] outline-none focus:border-[#111] transition-colors"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Description */}
+                    <div>
+                      <label className="text-xs font-bold text-zinc-700 block mb-1">Subtitle / Marketing Tagline</label>
+                      <textarea
+                        rows={2}
+                        value={comboDesc}
+                        onChange={e => setComboDesc(e.target.value)}
+                        placeholder="Brief description highlighting the fit and savings..."
+                        className="w-full px-4 py-2.5 rounded-xl border border-zinc-200 text-xs text-[#111] outline-none focus:border-[#111] transition-colors resize-none"
+                      />
+                    </div>
+
+                    {/* Item 1 Selector */}
+                    <div className="p-4 rounded-xl bg-zinc-50 border border-zinc-200/80 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-black text-[#111] uppercase tracking-wider flex items-center gap-1.5">
+                          <span className="w-5 h-5 rounded-full bg-[#111] text-white text-[10px] flex items-center justify-center font-bold">1</span>
+                          Select Top Wear / Shirt / Gown
+                        </label>
+                        {item1 && (
+                          <span className="text-[11px] font-black text-amber-600">{formatINR(item1.price)}</span>
+                        )}
+                      </div>
+                      <select
+                        value={comboItem1Id}
+                        onChange={e => setComboItem1Id(e.target.value)}
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 text-xs font-semibold text-[#111] bg-white outline-none focus:border-[#111]"
+                      >
+                        <option value="">Default (First Top / Shirt in catalog)</option>
+                        {products.map(p => (
+                          <option key={p.id} value={p.id}>
+                            [{p.division.toUpperCase()}] {p.name} — {formatINR(p.price)}
+                          </option>
+                        ))}
+                      </select>
+                      {item1 && (
+                        <div className="flex items-center gap-3 pt-1">
+                          <img src={item1.imageUrl} alt={item1.name} className="w-10 h-10 rounded-lg object-cover border border-zinc-200 shrink-0" />
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-bold text-[#111] truncate">{item1.name}</p>
+                            <p className="text-[10px] text-zinc-400">Sizes: {item1.sizes.join(', ')} · Fabric: {item1.fabric}</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Item 2 Selector */}
+                    <div className="p-4 rounded-xl bg-zinc-50 border border-zinc-200/80 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-black text-[#111] uppercase tracking-wider flex items-center gap-1.5">
+                          <span className="w-5 h-5 rounded-full bg-[#111] text-white text-[10px] flex items-center justify-center font-bold">2</span>
+                          Select Bottom Wear / Cargo / Pant
+                        </label>
+                        {item2 && (
+                          <span className="text-[11px] font-black text-amber-600">{formatINR(item2.price)}</span>
+                        )}
+                      </div>
+                      <select
+                        value={comboItem2Id}
+                        onChange={e => setComboItem2Id(e.target.value)}
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 text-xs font-semibold text-[#111] bg-white outline-none focus:border-[#111]"
+                      >
+                        <option value="">Default (First Pant / Cargo in catalog)</option>
+                        {products.map(p => (
+                          <option key={p.id} value={p.id}>
+                            [{p.division.toUpperCase()}] {p.name} — {formatINR(p.price)}
+                          </option>
+                        ))}
+                      </select>
+                      {item2 && (
+                        <div className="flex items-center gap-3 pt-1">
+                          <img src={item2.imageUrl} alt={item2.name} className="w-10 h-10 rounded-lg object-cover border border-zinc-200 shrink-0" />
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-bold text-[#111] truncate">{item2.name}</p>
+                            <p className="text-[10px] text-zinc-400">Sizes: {item2.sizes.join(', ')} · Fabric: {item2.fabric}</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Live Margin & Customer Savings breakdown */}
+                    <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <p className="text-[11px] font-bold text-amber-900">Live Combo Economics</p>
+                        <p className="text-xs text-amber-800">
+                          Individual items total: <span className="line-through font-mono font-bold text-zinc-500">{formatINR(origTotal)}</span>
+                          {' → '}
+                          Bundle price: <span className="font-mono font-black text-[#111]">{formatINR(bundleNum)}</span>
+                        </p>
+                      </div>
+                      <div className="px-3 py-1.5 rounded-xl bg-amber-500 text-black text-xs font-black">
+                        Customer saves {formatINR(savings)} ({savingsPercent}% OFF)
+                      </div>
+                    </div>
+
+                    {/* Save Button */}
+                    <button
+                      type="submit"
+                      className="w-full py-3.5 rounded-xl bg-[#111] text-white font-black text-sm uppercase tracking-wider hover:bg-[#F5B301] hover:text-black transition-all flex items-center justify-center gap-2 shadow-sm"
+                    >
+                      <Check className="w-4 h-4" /> Save Combo Deal Changes
+                    </button>
+                  </form>
+                </div>
+
+                {/* Right: Live Storefront Card Preview */}
+                <div className="lg:col-span-5 space-y-4">
+                  <div className="bg-[#0c0c0c] text-white rounded-2xl p-5 border border-zinc-800 shadow-xl space-y-4">
+                    <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+                      <span className="text-[10px] font-black uppercase tracking-widest text-[#F5B301] flex items-center gap-1.5">
+                        <Eye className="w-3.5 h-3.5" /> Storefront Preview
+                      </span>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                        comboEnabled ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                      }`}>
+                        {comboEnabled ? 'Shown to Shoppers' : 'Hidden from Shoppers'}
+                      </span>
+                    </div>
+
+                    {/* Badge & Title */}
+                    <div className="text-center space-y-1">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F5B301]/10 border border-[#F5B301]/30 text-[#F5B301] text-[10px] font-black tracking-wider uppercase">
+                        <Flame className="w-3 h-3" /> {comboBadge || 'Streetwear Bundle Deal'}
+                      </span>
+                      <h4 className="text-base font-black tracking-tight">{comboTitle || 'COMPLETE THE FIT COMBO'}</h4>
+                      <p className="text-[11px] text-zinc-400 line-clamp-2">{comboDesc}</p>
+                    </div>
+
+                    {/* Two Product Cards with Plus */}
+                    <div className="space-y-2 relative">
+                      {/* Item 1 Preview */}
+                      {item1 && (
+                        <div className="flex items-center gap-3 p-2.5 rounded-xl bg-zinc-900/90 border border-zinc-800">
+                          <img src={item1.imageUrl} alt={item1.name} className="w-14 h-14 rounded-lg object-cover border border-zinc-700 shrink-0" />
+                          <div className="min-w-0 flex-1">
+                            <span className="text-[9px] font-black uppercase text-[#F5B301] tracking-wider">Top Wear</span>
+                            <p className="text-xs font-bold text-white truncate">{item1.name}</p>
+                            <p className="text-xs font-mono font-bold text-zinc-300">{formatINR(item1.price)}</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Plus icon divider */}
+                      <div className="flex justify-center -my-1 relative z-10">
+                        <div className="w-7 h-7 rounded-full bg-[#F5B301] text-black font-black text-xs flex items-center justify-center shadow-lg border-2 border-[#0c0c0c]">
+                          +
+                        </div>
+                      </div>
+
+                      {/* Item 2 Preview */}
+                      {item2 && (
+                        <div className="flex items-center gap-3 p-2.5 rounded-xl bg-zinc-900/90 border border-zinc-800">
+                          <img src={item2.imageUrl} alt={item2.name} className="w-14 h-14 rounded-lg object-cover border border-zinc-700 shrink-0" />
+                          <div className="min-w-0 flex-1">
+                            <span className="text-[9px] font-black uppercase text-[#F5B301] tracking-wider">Bottom Wear</span>
+                            <p className="text-xs font-bold text-white truncate">{item2.name}</p>
+                            <p className="text-xs font-mono font-bold text-zinc-300">{formatINR(item2.price)}</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Price Callout & Savings */}
+                    <div className="pt-2 border-t border-zinc-800 flex items-center justify-between">
+                      <div>
+                        <span className="text-[10px] text-zinc-400 block uppercase font-bold tracking-wider">Combo Price</span>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-xl font-black text-[#F5B301] font-mono">{formatINR(bundleNum)}</span>
+                          <span className="text-xs text-zinc-500 line-through font-mono">{formatINR(origTotal)}</span>
+                        </div>
+                      </div>
+                      <span className="px-2.5 py-1 rounded-full bg-green-500/20 border border-green-500/30 text-green-400 text-[10px] font-black">
+                        SAVE {formatINR(savings)}
+                      </span>
+                    </div>
+
+                    {/* Mock Add to Bag Button */}
+                    <div className="w-full py-2.5 rounded-xl bg-[#F5B301] text-black font-black text-xs text-center uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md">
+                      <ShoppingBag className="w-3.5 h-3.5" />
+                      ADD BOTH TO BAG · {formatINR(bundleNum)}
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-blue-50 border border-blue-200 text-blue-900 text-xs space-y-1.5">
+                    <p className="font-bold flex items-center gap-1.5">
+                      <Zap className="w-3.5 h-3.5 text-blue-600" /> How Customers Experience This:
+                    </p>
+                    <ul className="text-[11px] text-blue-800 space-y-1 list-disc pl-4">
+                      <li>The combo appears prominently on the homepage between collections.</li>
+                      <li>Customers pick their sizes for both top and bottom with one click.</li>
+                      <li>Clicking "Add Both to Bag" adds both items with the bundled discount price directly into checkout!</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* ════════════ ADD PRODUCT ════════════ */}
         {activeTab === 'add' && (
