@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, ArrowRight, Eye, Video, Layers } from 'lucide-react';
+import { Sparkles, ArrowRight, Eye, Video, Layers, MessageCircle, ShoppingBag, Zap, Check } from 'lucide-react';
+import { STORE_INFO } from '../data/products';
 
 interface LookbookItem {
   id: string;
@@ -8,35 +9,58 @@ interface LookbookItem {
   tagline: string;
   division: string;
   image: string;
-  pieces: string[];
+  comboPrice: number;
+  originalPrice: number;
+  pieces: { name: string; price: number; tag: string }[];
 }
 
 const LOOKS: LookbookItem[] = [
   {
     id: "look-1",
     title: "The Seoul Boxy Streetwear Silhouette",
-    tagline: "Oversized Flannel + Korean Double-Pleat Pants",
-    division: "Gents Wear",
+    tagline: "Oversized Flannel + Korean Double-Pleat Pants. Styled for effortless street drape in Tadipatri.",
+    division: "Gents Streetwear",
     image: "https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?auto=format&fit=crop&w=1200&q=80",
-    pieces: ["Boxy Checked Flannel (₹499)", "Korean Baggy Trousers (₹699)", "Minimal Sneaker"]
+    comboPrice: 750,
+    originalPrice: 1999,
+    pieces: [
+      { name: "Boxy Checked Flannel Shirt", price: 400, tag: "Flat ₹400 Drop" },
+      { name: "Korean Baggy Pleated Trousers", price: 400, tag: "Heavy Twill" },
+      { name: "Minimal Streetwear Sneaker Match", price: 0, tag: "Styling Tip" }
+    ]
   },
   {
     id: "look-2",
     title: "Royal Terracotta Evening Flare",
-    tagline: "High-flare maxi gown with statement metallic cinch",
-    division: "Ladies Wear",
+    tagline: "High-flare maxi gown with statement metallic cinch. Perfect for family weddings & temple festivals.",
+    division: "Ladies Designer Wear",
     image: "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?auto=format&fit=crop&w=1200&q=80",
-    pieces: ["Terracotta Maxi Gown (₹899)", "Belt Buckle Accent", "Crepe Flare"]
+    comboPrice: 899,
+    originalPrice: 2499,
+    pieces: [
+      { name: "Terracotta Anarkali Maxi Gown", price: 899, tag: "Crepe Silk Flare" },
+      { name: "Metallic Cinch Accent Belt", price: 0, tag: "Included Accessory" },
+      { name: "Matching Dupatta Set", price: 0, tag: "Full Ensemble" }
+    ]
   },
   {
     id: "look-3",
-    title: "Youth Tech-Fleece Co-Ord",
-    tagline: "Fleece Zip Hoodie + Tapered Joggers for active days",
-    division: "Kids Wear",
+    title: "Junior Street-Fleece Co-Ord",
+    tagline: "Heavy fleece zip hoodie + tapered cargo joggers for boys & girls on festive outings.",
+    division: "Kids Wear Special",
     image: "https://images.unsplash.com/photo-1503944583220-79d8926ad5e2?auto=format&fit=crop&w=1200&q=80",
-    pieces: ["2-Piece Urban Fleece Set (₹699)", "Denim Street Vest (₹749)"]
+    comboPrice: 699,
+    originalPrice: 1699,
+    pieces: [
+      { name: "2-Piece Urban Street Fleece Co-Ord", price: 699, tag: "Cotton Rich" },
+      { name: "Denim Utility Street Vest", price: 0, tag: "Layering Piece" }
+    ]
   }
 ];
+
+interface StreetwearLookbookProps {
+  onShopCategory?: (category: string) => void;
+}
 
 export const StreetwearLookbook: React.FC = () => {
   const [activeLookIndex, setActiveLookIndex] = useState(0);
@@ -112,27 +136,58 @@ export const StreetwearLookbook: React.FC = () => {
                 </p>
 
                 {/* Outfit Pieces breakdown */}
-                <div className="pt-4 border-t border-white/10 space-y-2">
-                  <span className="text-xs font-mono uppercase text-zinc-400 font-bold tracking-wider">
-                    Included in this look:
-                  </span>
+                <div className="pt-3 border-t border-white/10 space-y-2">
+                  <div className="flex items-center justify-between text-xs font-mono uppercase text-zinc-400 font-bold tracking-wider">
+                    <span>Styled Outfit Pieces:</span>
+                    <span className="text-[#F5B301]">Complete Set</span>
+                  </div>
                   <div className="space-y-2">
                     {currentLook.pieces.map((piece, i) => (
-                      <div key={i} className="flex items-center gap-2 text-xs text-zinc-200 bg-zinc-900/80 p-2.5 rounded-xl border border-white/5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#F5B301]" />
-                        <span>{piece}</span>
+                      <div key={i} className="flex items-center justify-between text-xs text-zinc-200 bg-zinc-900/90 p-2.5 rounded-xl border border-white/10">
+                        <div className="flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#F5B301]" />
+                          <span className="font-medium">{piece.name}</span>
+                        </div>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/10 font-mono text-zinc-300">
+                          {piece.tag}
+                        </span>
                       </div>
                     ))}
                   </div>
                 </div>
+
+                {/* Combo Deal Banner */}
+                <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-zinc-900 to-emerald-500/10 border border-[#F5B301]/30 flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] uppercase font-mono font-bold text-[#F5B301] block">Curated Combo Special</span>
+                    <div className="flex items-baseline gap-2 mt-0.5">
+                      <span className="text-2xl font-black font-mono text-white">₹{currentLook.comboPrice}</span>
+                      <span className="text-xs text-zinc-500 line-through font-mono">₹{currentLook.originalPrice}</span>
+                    </div>
+                  </div>
+                  <span className="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-mono font-bold">
+                    Save ₹{currentLook.originalPrice - currentLook.comboPrice}
+                  </span>
+                </div>
               </div>
 
-              <div className="pt-8">
+              {/* Action Buttons */}
+              <div className="pt-6 border-t border-white/10 flex flex-col sm:flex-row gap-3">
+                <a
+                  href={`https://wa.me/919848988295?text=${encodeURIComponent(`Namaste! I want to order the complete styled look "${currentLook.title}" (${currentLook.division}) for ₹${currentLook.comboPrice}. Please reserve my sizes!`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 py-3.5 px-4 rounded-xl bg-[#25D366] hover:bg-[#22c35e] text-black font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition-all"
+                >
+                  <MessageCircle className="w-4 h-4 fill-black" />
+                  <span>Order Bundle on WhatsApp</span>
+                </a>
+
                 <a
                   href="#catalog"
-                  className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#F5B301] hover:text-white transition-colors"
+                  className="py-3.5 px-4 rounded-xl bg-white hover:bg-[#F5B301] text-black font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors"
                 >
-                  <span>Shop the pieces in catalog</span>
+                  <span>Browse Pieces</span>
                   <ArrowRight className="w-4 h-4" />
                 </a>
               </div>
