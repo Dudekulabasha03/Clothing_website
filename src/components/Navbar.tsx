@@ -20,7 +20,8 @@ import {
   MapPin,
   MessageCircle,
   Phone,
-  ChevronRight
+  ChevronRight,
+  Shield
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -565,6 +566,23 @@ export const Navbar: React.FC<NavbarProps> = ({
                       </span>
                       <span className="text-[10px] font-mono text-zinc-400 uppercase">
                         {isDark ? 'Dark' : 'Light'}
+                      </span>
+                    </button>
+
+                    {/* Admin Portal Trigger */}
+                    <button
+                      onClick={() => {
+                        onOpenAdmin();
+                        setMobileDrawerOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-bold hover:bg-amber-500/10 text-zinc-500 hover:text-amber-500 transition-colors"
+                    >
+                      <span className="flex items-center gap-2.5">
+                        <Shield className="w-4 h-4 text-[#F5B301]" />
+                        <span>Admin Portal</span>
+                      </span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500">
+                        Staff
                       </span>
                     </button>
                   </div>

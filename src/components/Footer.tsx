@@ -21,12 +21,14 @@ interface FooterProps {
   onSelectCategory: (category: string) => void;
   onOpenVisitingCard: () => void;
   onOpenSizeGuide?: () => void;
+  onOpenAdmin?: () => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({
   onSelectDivision,
   onSelectCategory,
   onOpenSizeGuide,
+  onOpenAdmin,
 }) => {
   return (
     <footer className="bg-[#111] text-zinc-400 pt-16 pb-10">
@@ -227,7 +229,16 @@ export const Footer: React.FC<FooterProps> = ({
           <span>·</span>
           <span>GST Verified Business</span>
           <span>·</span>
-          <a href="#admin" className="hover:text-zinc-400 transition-colors">Store Management</a>
+          <button
+            type="button"
+            onClick={() => {
+              if (onOpenAdmin) onOpenAdmin();
+              window.location.hash = 'admin';
+            }}
+            className="hover:text-amber-400 transition-colors cursor-pointer text-zinc-500 hover:underline flex items-center gap-1"
+          >
+            <span>🔒 Admin Portal</span>
+          </button>
         </div>
       </div>
     </footer>

@@ -268,6 +268,7 @@ function MainStorefront() {
         onSelectCategory={(cat) => { setActiveCategory(cat); handleScrollToCatalog(); }}
         onOpenVisitingCard={() => {}}
         onOpenSizeGuide={() => openSizeGuide()}
+        onOpenAdmin={() => setIsAdminOpen(true)}
       />
 
       {/* ── Modals & Drawers ── */}
