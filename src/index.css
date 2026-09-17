@@ -1,0 +1,199 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --brand-amber: #E5A812;
+    --brand-gold: #D4AF37;
+    --brand-lime: #D1FE17;
+    --bg-page: #FAFAF8;
+    --text-primary: #0A0A0A;
+    --text-muted: #64748B;
+    --border-light: #EAEAE6;
+  }
+
+  /* ── LIGHT MODE (default) — Editorial Warm Alabaster & Obsidian ── */
+  body {
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* ── DARK MODE override — Deep Obsidian ── */
+  body.dark {
+    --bg-page: #080808;
+    --text-primary: #F4F4F5;
+    --text-muted: #A1A1AA;
+    --border-light: #222222;
+    background-color: #080808;
+    color: #F4F4F5;
+  }
+
+  /* Scrollbar — light */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: #f5f5f3; }
+  ::-webkit-scrollbar-thumb { background: #d4d4d0; border-radius: 9999px; }
+  ::-webkit-scrollbar-thumb:hover { background: #E5A812; }
+
+  /* Scrollbar — dark */
+  body.dark ::-webkit-scrollbar-track { background: #0a0a0a; }
+  body.dark ::-webkit-scrollbar-thumb { background: #27272a; }
+}
+
+/* ─── Hide Scrollbar for chips ───────────────────────────── */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ─── Modern Luxury Streetwear card ────────────────────────── */
+.product-card {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+.product-card:hover {
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.09);
+  transform: translateY(-4px);
+}
+body.dark .product-card {
+  background: #121212;
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* ─── Glass Panel (light + dark) ─────────────────────────── */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+body.dark .glass-panel {
+  background: rgba(18, 18, 18, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+/* ─── Glow Border ────────────────────────────────────────── */
+.glow-border {
+  position: relative;
+}
+.glow-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(245,179,1,0.5), transparent, rgba(209,254,23,0.3));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ─── Marquee Animation ──────────────────────────────────── */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 28s linear infinite;
+  will-change: transform;
+}
+
+/* ─── Amber Badge Gradient ───────────────────────────────── */
+.badge-amber {
+  background: linear-gradient(135deg, #F5B301, #FFD700);
+  color: #111;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  padding: 3px 10px;
+  border-radius: 6px;
+}
+
+/* ─── Shimmer Skeleton ───────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.8s linear infinite;
+}
+body.dark .skeleton {
+  background: linear-gradient(90deg, #222 25%, #2a2a2a 50%, #222 75%);
+  background-size: 200% 100%;
+}
+
+/* ─── Hero overlay text ──────────────────────────────────── */
+.hero-text-shadow {
+  text-shadow: 0 2px 24px rgba(0,0,0,0.55);
+}
+
+/* ─── Snitch Red Pill button ─────────────────────────────── */
+.btn-flat400 {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: white;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  border-radius: 9999px;
+  padding: 10px 24px;
+  box-shadow: 0 4px 16px rgba(220,38,38,0.4);
+  transition: all 0.2s ease;
+}
+.btn-flat400:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(220,38,38,0.5);
+}
+
+/* ─── Snitch Outline Button ──────────────────────────────── */
+.btn-outline-dark {
+  border: 2px solid #111;
+  color: #111;
+  font-weight: 700;
+  border-radius: 9999px;
+  padding: 10px 24px;
+  transition: all 0.2s ease;
+}
+.btn-outline-dark:hover {
+  background: #111;
+  color: #fff;
+}
+body.dark .btn-outline-dark {
+  border-color: #fff;
+  color: #fff;
+}
+body.dark .btn-outline-dark:hover {
+  background: #fff;
+  color: #111;
+}
+
+/* ─── Section heading style ──────────────────────────────── */
+.section-heading {
+  font-size: clamp(1.75rem, 4vw, 3rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+
+/* ─── Offer tag ribbon ───────────────────────────────────── */
+.ribbon-offer {
+  position: absolute;
+  top: 12px;
+  left: 0;
+  background: #dc2626;
+  color: white;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 4px 10px 4px 12px;
+  clip-path: polygon(0 0, 100% 0, 88% 50%, 100% 100%, 0 100%);
+  letter-spacing: 0.05em;
+  z-index: 10;
+}

@@ -1,0 +1,21 @@
+{
+  "name": "DIL Garments",
+  "short_name": "DIL Garments",
+  "description": "Tadipatri's official fashion store — Baggy Shirts & Pants @ ₹400, Ladies Gowns, Kids Wear",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#F5B301",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["shopping", "lifestyle"],
+  "lang": "en-IN",
+  "dir": "ltr"
+}
