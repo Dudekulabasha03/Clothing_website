@@ -135,3 +135,21 @@ export interface ComboDealConfig {
   item2Id: string;
   enabled: boolean;
 }
+
+export interface ProductReview {
+  id: string;
+  productId?: string;
+  name: string;
+  city: string;
+  rating: number;
+  date: string;
+  comment: string;
+  photoUrl?: string;
+  verified: boolean;
+  helpfulVotes: number;
+  sizePurchased?: string;
+  fitFeedback?: 'Runs small' | 'True to size' | 'Runs slightly loose' | 'Perfect oversized';
+  height?: string;
+  weight?: string;
+}
+
